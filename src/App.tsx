@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
 import { AgentsPage } from "@/lib/agents";
@@ -6,6 +10,7 @@ import { RunsList } from "@/lib/runs";
 import { MessagesList } from "@/lib/messages";
 import { HomePage } from "@/lib/home";
 import { Shell } from "@/lib/shell";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +21,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
+        element: <Navigate to="/home" />,
+      },
+      {
+        path: "/home",
         element: <HomePage />,
       },
       {
@@ -37,7 +46,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <TooltipProvider>
+        <RouterProvider router={router} />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

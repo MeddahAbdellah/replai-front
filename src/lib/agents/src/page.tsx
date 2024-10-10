@@ -72,7 +72,7 @@ export function AgentsPage() {
     : addedAgents;
 
   return (
-    <Tabs defaultValue="all">
+    <Tabs className="px-4" defaultValue="all">
       <div className="flex items-center mb-2">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>

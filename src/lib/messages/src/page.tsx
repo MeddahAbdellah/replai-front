@@ -19,7 +19,7 @@ export function MessagesList() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col px-4">
       {messages?.map(toMessage).map((message) => (
         // a card that displays the message text and has a play button on the top right corner
         // also has labels on the bottom left corner
