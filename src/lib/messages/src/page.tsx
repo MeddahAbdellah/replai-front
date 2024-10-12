@@ -14,7 +14,22 @@ import { Badge } from "@/components/ui/badge";
 import { toMessage } from "./toMessage";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { X } from "lucide-react";
+import { ChevronsUpDown, X } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export function MessagesList() {
   const { agentId, runId } = useParams<{ agentId: string; runId: string }>();
@@ -25,7 +40,7 @@ export function MessagesList() {
     enabled: !!runId,
   });
   const messages = dbMessages?.map(toMessage) || [];
-  const [toolCallsToReplay, setToolCallsToReplay] = useState<ToolCall[]>([]);
+  const [messagesToReplay, setMessagesToReplay] = useState<Message[]>([]);
 
   return (
     <div className="h-full px-4 gap-4 grid grid-cols-[2fr_1fr]">
@@ -36,46 +51,39 @@ export function MessagesList() {
               <Badge variant="outline" className="mr-auto">
                 {message.type}
               </Badge>
-              {message.toolCalls && message.toolCalls.length > 0 ? (
-                <Button
-                  variant="secondary"
-                  size={"sm"}
-                  onClick={() => {
-                    setToolCallsToReplay([
-                      ...toolCallsToReplay,
-                      ...(message.toolCalls || []),
-                    ]);
-                  }}
-                >
-                  Replay only this action
-                </Button>
-              ) : null}
-
+              <Button
+                variant="secondary"
+                size={"sm"}
+                onClick={() => {
+                  setMessagesToReplay([...messagesToReplay, message]);
+                }}
+              >
+                Add only this message
+              </Button>
               <Button
                 variant="secondary"
                 size={"sm"}
                 onClick={() => {
                   // add all tool calls from this message to the end of the messages to toolCallsToReplay
                   const messagesAfterThisMessage = messages?.slice(
-                    messages.indexOf(message) + 1
+                    messages.indexOf(message)
                   );
 
                   if (!messagesAfterThisMessage) {
                     return;
                   }
 
-                  const toolCalls = messagesAfterThisMessage
-                    .map((message) => message.toolCalls || [])
-                    .flat();
-
-                  setToolCallsToReplay([...toolCallsToReplay, ...toolCalls]);
+                  setMessagesToReplay([
+                    ...messagesToReplay,
+                    ...messagesAfterThisMessage,
+                  ]);
                 }}
               >
-                Replay from this message
+                Add from this message
               </Button>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Content message={message} />
+              <Content message={message} editable={false} />
             </CardContent>
           </Card>
         ))}
@@ -83,64 +91,148 @@ export function MessagesList() {
       <Card className="flex flex-col overflow-y-hidden">
         <CardHeader>
           <h2 className="text-xl font-bold">
-            Actions {`(${toolCallsToReplay.length})`}
+            Actions {`(${messagesToReplay.length})`}
           </h2>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 flex-1 overflow-y-auto">
-          {toolCallsToReplay.map((toolCall, index) => (
+          {messagesToReplay.map((message, index) => (
             <Card>
-              <CardHeader className="pb-0">
-                <X
-                  className="ml-auto cursor-pointer"
-                  size={20}
-                  onClick={() => {
-                    setToolCallsToReplay(
-                      toolCallsToReplay.filter((_, i) => i !== index)
-                    );
-                  }}
-                />
+              <CardHeader className="flex flex-row justify-between">
+                <Badge variant="outline" className="mr-auto">
+                  {message.type}
+                </Badge>
+                <Button variant="ghost" size="sm" className="w-9 p-0">
+                  <X
+                    className="h-4 w-4"
+                    onClick={() => {
+                      setMessagesToReplay(
+                        messagesToReplay.filter((_, i) => i !== index)
+                      );
+                    }}
+                  />
+                  <span className="sr-only">Toggle</span>
+                </Button>
               </CardHeader>
               <CardContent>
-                <ToolCallDisplay key={index} toolCall={toolCall} />
+                <Content message={message} editable={false} />
               </CardContent>
             </Card>
           ))}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="p-6">
           <Button
+            className="w-full"
             variant={"secondary"}
-            className="ml-auto"
             onClick={() => {
-              setToolCallsToReplay([]);
+              setMessagesToReplay([]);
             }}
           >
             Clear all
           </Button>
-          <Button
-            className="ml-4"
-            onClick={() => {
-              console.log("Replaying tool calls", toolCallsToReplay);
-            }}
-          >
-            Play
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                className="ml-4 w-full"
+                disabled={messagesToReplay.length === 0}
+                onClick={() => {
+                  console.log("Replaying tool calls", messagesToReplay);
+                }}
+              >
+                Launch a run
+              </Button>
+            </SheetTrigger>
+            <Run messages={messagesToReplay} />
+          </Sheet>
         </CardFooter>
       </Card>
     </div>
   );
 }
 
-function SimpleText({ text }: { text: string | undefined }) {
+function Run({ messages }: { messages: Message[] }) {
   return (
-    <div className="bg-secondary border rounded-md flex p-8">
-      <small className="text-sm font-medium leading-none text-left line-height-1">
-        {`"${text}"`}
-      </small>
-    </div>
+    <SheetContent className="flex flex-col max-w-screen sm:max-w-screen w-auto">
+      <SheetHeader>
+        <SheetTitle>Create a new run</SheetTitle>
+        <SheetDescription>Here you create a new run</SheetDescription>
+      </SheetHeader>
+      <div className="grid grid-cols-[2fr_1fr] gap-4 overflow-hidden h-full">
+        <div className="py-4 overflow-y-auto bg-black border border-zinc-700 rounded-md"></div>
+        <div className="flex flex-col gap-4 py-4 overflow-y-auto w-[450px]">
+          {messages.map((message) => (
+            <Card key={message.id} className="mb-4">
+              <CardHeader className="grid grid-cols-[1fr_auto_auto] space-y-0 gap-2">
+                <Badge variant="outline" className="mr-auto">
+                  {message.type}
+                </Badge>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <Content message={message} editable={true} />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <SheetFooter className="mt-auto">
+        <SheetClose asChild>
+          <Button>Run</Button>
+        </SheetClose>
+      </SheetFooter>
+    </SheetContent>
   );
 }
 
-function ToolCallDisplay({ toolCall }: { toolCall: ToolCall }) {
+function SimpleText({
+  text,
+  editable,
+}: {
+  text: string | undefined;
+  editable: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full space-y-2"
+    >
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center justify-between space-x-4">
+          <Badge>Text</Badge>
+          <Button variant="ghost" size="sm" className="w-9 p-0">
+            <ChevronsUpDown className="h-4 w-4" />
+            <span className="sr-only">Toggle</span>
+          </Button>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-2">
+        <ReactJson
+          src={{ text }}
+          theme="rjv-default"
+          displayDataTypes={false}
+          name={false}
+          collapsed={1}
+          enableClipboard={true}
+          collapseStringsAfterLength={30}
+          indentWidth={2}
+          onEdit={
+            editable ? (edit) => console.log(edit.updated_src) : undefined
+          }
+        />
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function ToolCallDisplay({
+  toolCall,
+  editable,
+}: {
+  toolCall: ToolCall;
+  editable: boolean;
+}) {
   return (
     <div className="w-full p-2">
       <Badge className="mb-2">{toolCall.name}</Badge>
@@ -154,28 +246,73 @@ function ToolCallDisplay({ toolCall }: { toolCall: ToolCall }) {
           enableClipboard={true}
           collapseStringsAfterLength={30}
           indentWidth={2}
+          onEdit={
+            editable ? (edit) => console.log(edit.updated_src) : undefined
+          }
         />
       </div>
     </div>
   );
 }
 
-function Content({ message }: { message: Message }) {
+function ImageMessage({ src }: { src: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full space-y-2"
+    >
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center justify-between space-x-4">
+          <Badge>Image</Badge>
+          <Button variant="ghost" size="sm" className="w-9 p-0">
+            <ChevronsUpDown className="h-4 w-4" />
+            <span className="sr-only">Toggle</span>
+          </Button>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-2">
+        <img src={src} alt="" />
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function Content({
+  message,
+  editable,
+}: {
+  message: Message;
+  editable: boolean;
+}) {
   return (
     <>
       {!message.content ? null : !Array.isArray(message.content) ? (
-        <SimpleText text={message.content}></SimpleText>
+        <SimpleText text={message.content} editable={editable}></SimpleText>
       ) : (
         message.content?.map((content, index) => {
           if (typeof content === "string") {
-            return <SimpleText text={content}></SimpleText>;
+            return (
+              <SimpleText
+                key={index}
+                text={content}
+                editable={editable}
+              ></SimpleText>
+            );
           }
 
           switch (content.type) {
             case "image_url":
-              return <img key={index} src={content.image_url.url} alt="" />;
+              return <ImageMessage key={index} src={content.image_url.url} />;
             case "text":
-              return <SimpleText text={content.text}></SimpleText>;
+              return (
+                <SimpleText
+                  key={index}
+                  text={content.text}
+                  editable={editable}
+                ></SimpleText>
+              );
             default:
               return null;
           }
@@ -183,7 +320,11 @@ function Content({ message }: { message: Message }) {
       )}
       {message.toolCalls &&
         message.toolCalls.map((toolCall, index) => (
-          <ToolCallDisplay key={`toolCall-${index}`} toolCall={toolCall} />
+          <ToolCallDisplay
+            key={`toolCall-${index}`}
+            toolCall={toolCall}
+            editable={editable}
+          />
         ))}
     </>
   );
