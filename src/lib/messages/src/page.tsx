@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/collapsible";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -47,7 +46,7 @@ export function MessagesList() {
       <div className="flex flex-col overflow-y-auto">
         {messages.map((message) => (
           <Card key={message.id} className="mb-4">
-            <CardHeader className="grid grid-cols-[1fr_auto_auto] space-y-0 gap-2">
+            <CardHeader className="grid grid-cols-[1fr_auto_auto_auto] space-y-0 gap-2">
               <Badge variant="outline" className="mr-auto">
                 {message.type}
               </Badge>
@@ -59,6 +58,17 @@ export function MessagesList() {
                 }}
               >
                 Add only this message
+              </Button>
+              <Button
+                variant="secondary"
+                size={"sm"}
+                onClick={() => {
+                  setMessagesToReplay(
+                    messagesToReplay?.slice(0, messages.indexOf(message))
+                  );
+                }}
+              >
+                Remove from this message
               </Button>
               <Button
                 variant="secondary"
@@ -175,9 +185,7 @@ function Run({ messages }: { messages: Message[] }) {
       </div>
 
       <SheetFooter className="mt-auto">
-        <SheetClose asChild>
-          <Button>Run</Button>
-        </SheetClose>
+        <Button>Run</Button>
       </SheetFooter>
     </SheetContent>
   );
