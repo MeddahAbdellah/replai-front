@@ -51,7 +51,15 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { DbAgent } from "../model";
+import {
+  Agent,
+  AgentProtocol,
+  agentProtocol,
+  AgentStatus,
+  agentStatus,
+  agentStoredAt,
+  AgentStoredAt,
+} from "../model";
 import { addAgent, fetchAgents } from "../actions";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,18 +69,18 @@ export function AgentsPage() {
     data: fetchedAgents,
     isLoading,
     error,
-  } = useQuery<DbAgent[], Error>({
+  } = useQuery<Agent[], Error>({
     queryKey: ["agents"],
     queryFn: fetchAgents,
   });
-  const [addedAgents, setAddedAgents] = useState<DbAgent[]>([]);
+  const [addedAgents, setAddedAgents] = useState<Agent[]>([]);
 
   const agents = fetchedAgents
     ? [...fetchedAgents, ...addedAgents]
     : addedAgents;
 
   return (
-    <Tabs className="px-4" defaultValue="all">
+    <Tabs className="px-4 flex flex-col h-full" defaultValue="all">
       <div className="flex items-center mb-2">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
@@ -126,27 +134,25 @@ export function AgentsPage() {
           </Sheet>
         </div>
       </div>
-      <Card x-chunk="dashboard-06-chunk-0">
+      <Card x-chunk="dashboard-06-chunk-0" className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>Agents</CardTitle>
           <CardDescription>
             Manage your agents and view their runs.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="h-full">
           <TabsContent value="all">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="hidden w-[100px] sm:table-cell">
-                    <span className="sr-only">Image</span>
-                  </TableHead>
-                  <TableHead className="text-center">Name</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="hidden md:table-cell text-center">
+                  <TableHead className="text-left">Protocol</TableHead>
+                  <TableHead className="text-left">Name</TableHead>
+                  <TableHead className="text-left">Status</TableHead>
+                  <TableHead className="hidden md:table-cell text-left">
                     Source
                   </TableHead>
-                  <TableHead className="hidden md:table-cell text-center">
+                  <TableHead className="hidden md:table-cell text-left">
                     Created at
                   </TableHead>
                   <TableHead>
@@ -198,10 +204,10 @@ export function AgentsPage() {
                         <Badge variant="outline">{agent.status}</Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {agent.source}
+                        {agent.storedAt}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {agent.createdAt}
+                        {agent.createdAt.toISOString()}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -216,11 +222,9 @@ export function AgentsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Link to={`/agents/${agent.id}/runs`}>
-                                View runs
-                              </Link>
-                            </DropdownMenuItem>
+                            <Link to={`/agents/${agent.id}/runs`}>
+                              <DropdownMenuItem>View runs</DropdownMenuItem>
+                            </Link>
                             <DropdownMenuItem>Invoke</DropdownMenuItem>
                             <DropdownMenuItem>Edit</DropdownMenuItem>
                             <DropdownMenuItem>Delete</DropdownMenuItem>
@@ -244,11 +248,12 @@ export function AgentsPage() {
   );
 }
 
-function AddAgentSheet(params: { onAdd: (agent: DbAgent) => void }) {
+function AddAgentSheet(params: { onAdd: (agent: Agent) => void }) {
   const { onAdd } = params;
-  const [protocol, setProtocol] = useState<string>();
+  const [protocol, setProtocol] = useState<AgentProtocol>();
   const [url, setUrl] = useState<string>();
   const [name, setName] = useState<string>();
+  const [storedAt, setStoredAt] = useState<AgentStoredAt>();
   return (
     <SheetContent>
       <SheetHeader>
@@ -272,15 +277,18 @@ function AddAgentSheet(params: { onAdd: (agent: DbAgent) => void }) {
 
           <Select
             value={protocol}
-            onValueChange={(value) => setProtocol(value)}
+            onValueChange={(value) => setProtocol(value as AgentProtocol)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select a protocol" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="http">Http</SelectItem>
-                <SelectItem value="websocket">Websocket</SelectItem>
+                {Object.values(agentProtocol)?.map((protocol) => (
+                  <SelectItem key={protocol} value={protocol}>
+                    {protocol}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -294,22 +302,52 @@ function AddAgentSheet(params: { onAdd: (agent: DbAgent) => void }) {
             onChange={(e) => setUrl(e.target.value)}
           />
         </div>
+        <div className="flex flex-col gap-2">
+          <Label>Store at</Label>
+
+          <Select
+            value={storedAt}
+            onValueChange={(value) => setStoredAt(value as AgentStoredAt)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a place to store the agent" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {Object.values(agentStoredAt)?.map((storedAt) => (
+                  <SelectItem key={storedAt} value={storedAt}>
+                    {storedAt}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <SheetFooter>
         <SheetClose asChild>
           <Button
-            onClick={() => {
-              if (!name || !protocol || !url) {
+            onClick={async () => {
+              if (!name || !protocol || !url || !storedAt) {
                 return;
               }
+              let status: AgentStatus = agentStatus.offline;
+              if (
+                protocol === agentProtocol.http ||
+                protocol === agentProtocol.https
+              ) {
+                const response = await fetch(url);
+                status = response.ok ? agentStatus.online : agentStatus.offline;
+              }
+
               onAdd({
                 id: crypto.randomUUID(),
                 name,
-                status: "Draft",
-                protocol,
-                source: "local",
+                status,
+                protocol: protocol as AgentProtocol,
+                storedAt,
                 url,
-                createdAt: new Date().toISOString(),
+                createdAt: new Date(),
               });
             }}
           >

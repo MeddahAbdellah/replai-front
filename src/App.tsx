@@ -6,7 +6,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
 import { AgentsPage } from "@/lib/agents";
-import { RunsList } from "@/lib/runs";
+import { RunsPage } from "@/lib/runs";
 import { MessagesList } from "@/lib/messages";
 import { HomePage } from "@/lib/home";
 import { Shell } from "@/lib/shell";
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/agents/:agentId/runs",
-        element: <RunsList />,
+        element: <RunsPage />,
       },
       {
         path: "/agents/:agentId/runs/:runId/messages",
