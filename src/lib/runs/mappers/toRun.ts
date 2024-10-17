@@ -5,6 +5,6 @@ export function toRun(dbRun: DbRun): Run {
     id: dbRun.id,
     status: dbRun.status as RunStatus,
     taskStatus: dbRun.task_status,
-    createdAt: dbRun.created_at,
+    timestamp: dbRun.timestamp,
   };
 }

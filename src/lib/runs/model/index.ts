@@ -2,7 +2,7 @@ export interface DbRun {
   id: number;
   status: string;
   task_status: string;
-  created_at: string;
+  timestamp: string;
 }
 
 export const runStatus = {
@@ -18,5 +18,5 @@ export interface Run {
   id: number;
   status: RunStatus;
   taskStatus: string;
-  createdAt: string;
+  timestamp: string;
 }

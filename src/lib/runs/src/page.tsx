@@ -133,7 +133,7 @@ export function RunsPage() {
                         {run.taskStatus}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {run.createdAt}
+                        {new Date(run.timestamp).toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button asChild variant="outline" size="sm">
