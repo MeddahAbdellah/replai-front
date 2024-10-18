@@ -81,7 +81,7 @@ export function AgentsPage() {
     : addedAgents;
 
   return (
-    <Tabs className="px-4 flex flex-col h-full" defaultValue="all">
+    <Tabs className="px-4 flex flex-col h-full py-8" defaultValue="all">
       <div className="flex items-center mb-2">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
@@ -135,14 +135,17 @@ export function AgentsPage() {
           </Sheet>
         </div>
       </div>
-      <Card x-chunk="dashboard-06-chunk-0" className="h-full flex flex-col">
+      <Card
+        x-chunk="dashboard-06-chunk-0"
+        className="h-full flex flex-col overflow-hidden"
+      >
         <CardHeader>
           <CardTitle>Agents</CardTitle>
           <CardDescription>
             Manage your agents and view their runs.
           </CardDescription>
         </CardHeader>
-        <CardContent className="h-full">
+        <CardContent className="h-full overflow-y-auto">
           <TabsContent value="all">
             <Table>
               <TableHeader>

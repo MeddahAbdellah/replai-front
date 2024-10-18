@@ -85,7 +85,7 @@ export function Shell() {
   return (
     <div className="flex min-h-screen max-h-screen w-full">
       <Sidebar />
-      <main className="flex min-h-screen max-h-screen border-box flex-col w-full py-8">
+      <main className="flex min-h-screen max-h-screen border-box flex-col w-full">
         <Outlet />
       </main>
     </div>
