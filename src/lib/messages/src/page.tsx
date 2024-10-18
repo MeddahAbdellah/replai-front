@@ -9,9 +9,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { fetchMessages } from "../actions";
-import { DbMessage, Message, type ToolCall } from "../model";
+import { Message, type ToolCall } from "../model";
 import { Badge } from "@/components/ui/badge";
-import { toMessage } from "./toMessage";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ChevronsUpDown, X } from "lucide-react";
@@ -33,18 +32,17 @@ import {
 export function MessagesList() {
   const { agentId, runId } = useParams<{ agentId: string; runId: string }>();
 
-  const { data: dbMessages } = useQuery<DbMessage[], Error>({
+  const { data: messages } = useQuery<Message[], Error>({
     queryKey: ["messages", runId],
     queryFn: () => fetchMessages(agentId!, runId!),
     enabled: !!runId,
   });
-  const messages = dbMessages?.map(toMessage) || [];
   const [messagesToReplay, setMessagesToReplay] = useState<Message[]>([]);
 
   return (
     <div className="h-full px-4 gap-4 grid grid-cols-[2fr_1fr]">
       <div className="flex flex-col overflow-y-auto">
-        {messages.map((message) => (
+        {messages?.map((message) => (
           <Card key={message.id} className="mb-4">
             <CardHeader className="grid grid-cols-[1fr_auto_auto_auto] space-y-0 gap-2">
               <Badge variant="outline" className="mr-auto">
