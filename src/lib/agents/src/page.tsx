@@ -60,8 +60,8 @@ import {
   agentStoredAt,
   AgentStoredAt,
 } from "../model";
-import { addAgent, fetchAgents } from "../actions";
-import { Link } from "react-router-dom";
+import { addAgent, createRun, fetchAgents } from "../actions";
+import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function AgentsPage() {
@@ -74,6 +74,7 @@ export function AgentsPage() {
     queryFn: fetchAgents,
   });
   const [addedAgents, setAddedAgents] = useState<Agent[]>([]);
+  const navigate = useNavigate();
 
   const agents = fetchedAgents
     ? [...fetchedAgents, ...addedAgents]
@@ -225,7 +226,20 @@ export function AgentsPage() {
                             <Link to={`/agents/${agent.id}/runs`}>
                               <DropdownMenuItem>View runs</DropdownMenuItem>
                             </Link>
-                            <DropdownMenuItem>Invoke</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={async () => {
+                                const run = await createRun(agent.id, {
+                                  targetUrl:
+                                    "https://careers.thalesgroup.com/global/en/apply?jobSeqNo=TGPTGWGLOBALR0235440EXTERNALENGLOBAL&source=WORKDAY&utm_source=linkedin&utm_medium=phenom-feeds&step=1",
+                                });
+
+                                navigate(
+                                  `/agents/${agent.id}/runs/${run.id}/messages`
+                                );
+                              }}
+                            >
+                              Invoke
+                            </DropdownMenuItem>
                             <DropdownMenuItem>Edit</DropdownMenuItem>
                             <DropdownMenuItem>Delete</DropdownMenuItem>
                           </DropdownMenuContent>

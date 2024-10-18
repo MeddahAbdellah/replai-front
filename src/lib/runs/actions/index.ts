@@ -12,3 +12,17 @@ export const fetchRuns = async (agentId: string): Promise<Run[]> => {
 
   return dbRuns.map(toRun);
 };
+
+export const fetchRun = async (
+  agentId: string,
+  runId: string
+): Promise<Run> => {
+  const agent = await fetchAgent(agentId);
+  const response = await fetch(`${agent?.url}/runs/${runId}`);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  const dbRun = await response.json();
+
+  return toRun(dbRun);
+};

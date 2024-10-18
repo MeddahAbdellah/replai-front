@@ -1,10 +1,10 @@
 import { fetchAgent } from "@/lib/agents";
-import { DbMessage } from "../model";
+import { Message } from "../model";
 
 export const fetchMessages = async (
   agentId: string,
   runId: string
-): Promise<DbMessage[]> => {
+): Promise<Message[]> => {
   const agent = await fetchAgent(agentId);
   const response = await fetch(`${agent?.url}/runs/${runId}/messages`);
   if (!response.ok) {

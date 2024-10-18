@@ -1,12 +1,3 @@
-export interface DbMessage {
-  id: number;
-  run_id: number;
-  type: string;
-  content: string;
-  tool_call: string;
-  timestamp: number;
-}
-
 export interface ToolCall {
   name: string;
   args: { input: string | { [key: string]: string } };
@@ -21,7 +12,8 @@ export type Content =
     )[];
 
 export interface Message {
-  id: number;
+  id: string;
+  runId: string;
   type: string;
   content?: Content;
   toolCalls?: ToolCall[];

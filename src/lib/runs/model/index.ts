@@ -8,7 +8,7 @@ export interface DbRun {
 export const runStatus = {
   scheduled: "scheduled",
   running: "running",
-  success: "success",
+  done: "done",
   failed: "failed",
 } as const;
 
