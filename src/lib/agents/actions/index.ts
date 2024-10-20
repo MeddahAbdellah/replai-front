@@ -4,24 +4,40 @@ import { Agent, DbAgent } from "../model";
 
 export const fetchAgents = async (): Promise<Agent[]> => {
   const agentsInLocalStorage = localStorage.getItem("agents");
-  let agents: DbAgent[] = [];
+  let agents: Agent[] = [];
+
   try {
-    agents = agentsInLocalStorage ? JSON.parse(agentsInLocalStorage) : [];
+    const storedAgents = agentsInLocalStorage
+      ? JSON.parse(agentsInLocalStorage)
+      : [];
+    for (const storedAgent of storedAgents) {
+      const agent = await toAgent(storedAgent);
+      agents = [...agents, agent];
+    }
   } catch (error) {
     console.error("Failed to parse agents from localStorage", error);
   }
-  return agents?.map(toAgent);
+  return agents;
 };
 
 export const fetchAgent = async (
   agentId: string
 ): Promise<Agent | undefined> => {
-  const agents = localStorage.getItem("agents");
+  const agents = await fetchAgents();
   return agents
-    ? JSON.parse(agents)
-        .map(toAgent)
-        .find((agent: DbAgent) => agent.id === agentId)
+    ? agents.find((agent: Agent) => agent.id === agentId)
     : undefined;
+};
+
+export const deleteAgent = async (agentId: string) => {
+  const agents = localStorage.getItem("agents");
+  if (!agents) {
+    return;
+  }
+  const parsed = JSON.parse(agents);
+  const updated = parsed.filter((agent: DbAgent) => agent.id !== agentId);
+  localStorage.setItem("agents", JSON.stringify(updated));
+  return { id: agentId };
 };
 
 export const addAgent = async (agent: Agent) => {

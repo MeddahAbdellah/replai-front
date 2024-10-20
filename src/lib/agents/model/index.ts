@@ -1,9 +1,8 @@
 export interface DbAgent {
   id: string;
   name: string;
-  status: string;
   protocol: string;
-  storedAt: string;
+  source: string;
   url: string;
   createdAt: string;
 }
@@ -24,18 +23,18 @@ export const agentProtocol = {
 
 export type AgentProtocol = (typeof agentProtocol)[keyof typeof agentProtocol];
 
-export const agentStoredAt = {
+export const agentSource = {
   local: "local",
 };
 
-export type AgentStoredAt = (typeof agentStoredAt)[keyof typeof agentStoredAt];
+export type AgentSource = (typeof agentSource)[keyof typeof agentSource];
 
 export interface Agent {
   id: string;
   name: string;
   status: AgentStatus;
   protocol: AgentProtocol;
-  storedAt: AgentStoredAt;
+  source: AgentSource;
   url: string;
   createdAt: Date;
 }

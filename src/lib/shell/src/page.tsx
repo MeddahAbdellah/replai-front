@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import { Home, LineChart, Package2, Settings, Users2 } from "lucide-react";
+import { Home, LineChart, Settings, Users2 } from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -15,7 +15,7 @@ const Sidebar = () => {
           to="#"
           className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
         >
-          <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
+          <img src="/langreplay_white.svg" width={25} height={25}></img>
           <span className="sr-only">Acme Inc</span>
         </Link>
         <Tooltip>

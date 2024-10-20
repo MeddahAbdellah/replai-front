@@ -3,16 +3,28 @@ import {
   AgentProtocol,
   AgentStatus,
   Agent,
-  AgentStoredAt,
+  AgentSource,
+  agentStatus,
+  agentProtocol,
 } from "../model";
 
-export function toAgent(dbAgent: DbAgent): Agent {
+export async function toAgent(dbAgent: DbAgent): Promise<Agent> {
+  let status: AgentStatus = agentStatus.offline;
+  if (
+    dbAgent.protocol === agentProtocol.http ||
+    dbAgent.protocol === agentProtocol.https
+  ) {
+    const response = await fetch(`${dbAgent.url}/health-check`).catch(() => ({
+      ok: false,
+    }));
+    status = response.ok ? agentStatus.online : agentStatus.offline;
+  }
   return {
     id: dbAgent.id,
     name: dbAgent.name,
-    status: dbAgent.status as AgentStatus,
+    status,
     protocol: dbAgent.protocol as AgentProtocol,
-    storedAt: dbAgent.storedAt as AgentStoredAt,
+    source: dbAgent.source as AgentSource,
     url: dbAgent.url,
     createdAt: new Date(dbAgent.createdAt),
   };
