@@ -1,17 +1,33 @@
 import { Message } from "@/lib/messages/model";
 import { toRun } from "../mappers/toRun";
-import { Run } from "../model";
+import { Filters, GetRunsResponse, Order, Pagination, Run } from "../model";
 import { fetchAgent } from "@/lib/agents";
 
-export const fetchRuns = async (agentId: string): Promise<Run[]> => {
+export const fetchRuns = async (
+  agentId: string,
+  pagination: Pagination,
+  order: Order,
+  filters?: Filters
+): Promise<GetRunsResponse> => {
   const agent = await fetchAgent(agentId);
-  const response = await fetch(`${agent?.url}/runs`);
+  const queryParams = new URLSearchParams({
+    page: pagination.page.toString(),
+    limit: pagination.limit.toString(),
+    order: order,
+    ...(filters?.status && { status: filters.status }),
+    ...(filters?.taskStatus && { taskStatus: filters.taskStatus }),
+  });
+
+  const response = await fetch(`${agent?.url}/runs?${queryParams}`);
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
-  const dbRuns = await response.json();
+  const paginatedResponse = await response.json();
 
-  return dbRuns.map(toRun);
+  return {
+    runs: paginatedResponse.runs.map(toRun),
+    pagination: paginatedResponse.pagination,
+  };
 };
 
 export const fetchRun = async (
