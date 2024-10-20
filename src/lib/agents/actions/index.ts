@@ -35,7 +35,7 @@ export const addAgent = async (agent: Agent) => {
   }
 };
 
-export function createRun(
+export function createNewRun(
   agentId: string,
   parameters: Record<string, unknown>
 ) {
@@ -51,7 +51,7 @@ export function createRun(
   }
   return fetch(`${agent.url}/runs`, {
     method: "POST",
-    body: JSON.stringify({ parameters }),
+    body: JSON.stringify({ parameters, includeConfigMessages: true }),
     headers: {
       "Content-Type": "application/json",
     },

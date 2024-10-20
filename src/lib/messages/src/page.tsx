@@ -1,34 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import ReactJson from "react-json-view";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { fetchMessages } from "../actions";
-import { Message, type ToolCall } from "../model";
+import { Message } from "../model";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { ChevronsUpDown, X } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { X } from "lucide-react";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { fetchRun, runStatus, Run } from "@/lib/runs";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { CreateRunSheet } from "./createRunSheet";
+import { Content } from "./content";
 
 export function MessagesList() {
   const { agentId, runId } = useParams<{ agentId: string; runId: string }>();
@@ -184,198 +172,16 @@ export function MessagesList() {
                   <Button
                     className="ml-4 w-full"
                     disabled={messagesToReplay.length === 0}
-                    onClick={() => {
-                      console.log("Replaying tool calls", messagesToReplay);
-                    }}
                   >
                     Launch a run
                   </Button>
                 </SheetTrigger>
-                <RunDisplay messages={messagesToReplay} />
+                <CreateRunSheet messages={messagesToReplay} />
               </Sheet>
             </div>
           </div>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
-  );
-}
-
-function RunDisplay({ messages }: { messages: Message[] }) {
-  return (
-    <SheetContent className="flex flex-col max-w-screen sm:max-w-screen w-auto">
-      <SheetHeader>
-        <SheetTitle>Create a new run</SheetTitle>
-        <SheetDescription>Here you create a new run</SheetDescription>
-      </SheetHeader>
-      <div className="grid grid-cols-[2fr_1fr] gap-4 overflow-hidden h-full">
-        <div className="py-4 overflow-y-auto bg-black border border-zinc-700 rounded-md"></div>
-        <div className="flex flex-col gap-4 py-4 overflow-y-auto w-[450px]">
-          {messages.map((message) => (
-            <Card key={message.id} className="mb-4">
-              <CardHeader className="grid grid-cols-[1fr_auto_auto] space-y-0 gap-2">
-                <Badge variant="outline" className="mr-auto">
-                  {message.type}
-                </Badge>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <Content message={message} editable={true} />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <SheetFooter className="mt-auto">
-        <Button>Run</Button>
-      </SheetFooter>
-    </SheetContent>
-  );
-}
-
-function SimpleText({
-  text,
-  editable,
-}: {
-  text: string | undefined;
-  editable: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="w-full space-y-2"
-    >
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between space-x-4">
-          <Badge>Text</Badge>
-          <Button variant="ghost" size="sm" className="w-9 p-0">
-            <ChevronsUpDown className="h-4 w-4" />
-            <span className="sr-only">Toggle</span>
-          </Button>
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-2">
-        <ReactJson
-          src={{ text }}
-          theme="rjv-default"
-          displayDataTypes={false}
-          name={false}
-          collapsed={1}
-          enableClipboard={true}
-          collapseStringsAfterLength={30}
-          indentWidth={2}
-          onEdit={
-            editable ? (edit) => console.log(edit.updated_src) : undefined
-          }
-        />
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-function ToolCallDisplay({
-  toolCall,
-  editable,
-}: {
-  toolCall: ToolCall;
-  editable: boolean;
-}) {
-  return (
-    <div className="w-full p-2">
-      <Badge className="mb-2">{toolCall.name}</Badge>
-      <div className="overflow-auto">
-        <ReactJson
-          src={toolCall.args}
-          theme="rjv-default"
-          displayDataTypes={false}
-          name={false}
-          collapsed={1}
-          enableClipboard={true}
-          collapseStringsAfterLength={30}
-          indentWidth={2}
-          onEdit={
-            editable ? (edit) => console.log(edit.updated_src) : undefined
-          }
-        />
-      </div>
-    </div>
-  );
-}
-
-function ImageMessage({ src }: { src: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="w-full space-y-2"
-    >
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between space-x-4">
-          <Badge>Image</Badge>
-          <Button variant="ghost" size="sm" className="w-9 p-0">
-            <ChevronsUpDown className="h-4 w-4" />
-            <span className="sr-only">Toggle</span>
-          </Button>
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-2">
-        <img src={src} alt="" />
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-function Content({
-  message,
-  editable,
-}: {
-  message: Message;
-  editable: boolean;
-}) {
-  return (
-    <>
-      {!message.content ? null : !Array.isArray(message.content) ? (
-        <SimpleText text={message.content} editable={editable}></SimpleText>
-      ) : (
-        message.content?.map((content, index) => {
-          if (typeof content === "string") {
-            return (
-              <SimpleText
-                key={index}
-                text={content}
-                editable={editable}
-              ></SimpleText>
-            );
-          }
-
-          switch (content.type) {
-            case "image_url":
-              return <ImageMessage key={index} src={content.image_url.url} />;
-            case "text":
-              return (
-                <SimpleText
-                  key={index}
-                  text={content.text}
-                  editable={editable}
-                ></SimpleText>
-              );
-            default:
-              return null;
-          }
-        })
-      )}
-      {message.toolCalls &&
-        message.toolCalls.map((toolCall, index) => (
-          <ToolCallDisplay
-            key={`toolCall-${index}`}
-            toolCall={toolCall}
-            editable={editable}
-          />
-        ))}
-    </>
   );
 }

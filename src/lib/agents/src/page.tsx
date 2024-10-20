@@ -60,7 +60,7 @@ import {
   agentStoredAt,
   AgentStoredAt,
 } from "../model";
-import { addAgent, createRun, fetchAgents } from "../actions";
+import { addAgent, createNewRun, fetchAgents } from "../actions";
 import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -231,7 +231,7 @@ export function AgentsPage() {
                             </Link>
                             <DropdownMenuItem
                               onClick={async () => {
-                                const run = await createRun(agent.id, {
+                                const run = await createNewRun(agent.id, {
                                   targetUrl:
                                     "https://careers.thalesgroup.com/global/en/apply?jobSeqNo=TGPTGWGLOBALR0235440EXTERNALENGLOBAL&source=WORKDAY&utm_source=linkedin&utm_medium=phenom-feeds&step=1",
                                 });
