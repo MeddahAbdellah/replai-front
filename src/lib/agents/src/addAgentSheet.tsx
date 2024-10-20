@@ -24,7 +24,6 @@ import {
   Agent,
   AgentProtocol,
   agentProtocol,
-  AgentStatus,
   agentStatus,
   agentSource,
   AgentSource,
@@ -113,19 +112,11 @@ export function AddAgentSheet(params: { onAdd: (agent: Agent) => void }) {
               if (!name || !protocol || !url || !source) {
                 return;
               }
-              let status: AgentStatus = agentStatus.offline;
-              if (
-                protocol === agentProtocol.http ||
-                protocol === agentProtocol.https
-              ) {
-                const response = await fetch(url);
-                status = response.ok ? agentStatus.online : agentStatus.offline;
-              }
 
               onAdd({
                 id: crypto.randomUUID(),
                 name,
-                status,
+                status: agentStatus.offline,
                 protocol: protocol as AgentProtocol,
                 source,
                 url,

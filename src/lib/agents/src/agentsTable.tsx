@@ -15,10 +15,12 @@ export const AgentsTable = ({
   agents,
   isLoading,
   error,
+  onDelete,
 }: {
   agents: Agent[];
   isLoading: boolean;
   error: Error | null;
+  onDelete: (id: string) => void;
 }) => {
   return (
     <Table>
@@ -69,7 +71,9 @@ export const AgentsTable = ({
             </TableCell>
           </TableRow>
         ) : (
-          agents.map((agent) => <AgentRow agent={agent} />)
+          agents.map((agent) => (
+            <AgentRow key={agent.id} agent={agent} onDelete={onDelete} />
+          ))
         )}
       </TableBody>
     </Table>

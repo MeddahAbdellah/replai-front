@@ -15,7 +15,13 @@ import { Agent } from "../model";
 import { createNewRun, deleteAgent } from "../actions";
 import { Link, useNavigate } from "react-router-dom";
 
-export function AgentRow({ agent }: { agent: Agent }) {
+export function AgentRow({
+  agent,
+  onDelete,
+}: {
+  agent: Agent;
+  onDelete: (id: string) => void;
+}) {
   const navigate = useNavigate();
   return (
     <TableRow key={agent.id}>
@@ -52,7 +58,12 @@ export function AgentRow({ agent }: { agent: Agent }) {
             >
               Invoke
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => deleteAgent(agent.id)}>
+            <DropdownMenuItem
+              onClick={async () => {
+                await deleteAgent(agent.id);
+                onDelete(agent.id);
+              }}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

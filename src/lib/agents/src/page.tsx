@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { File, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,25 +15,29 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useState } from "react";
 import { Agent, agentStatus } from "../model";
 import { addAgent, fetchAgents } from "../actions";
 import { AddAgentSheet } from "./addAgentSheet";
 import { AgentsTable } from "./agentsTable";
+import { useEffect } from "react";
 
 export function AgentsPage() {
   const {
     data: fetchedAgents,
-    isLoading,
+    isPending: isLoading,
     error,
-  } = useQuery<Agent[], Error>({
-    queryKey: ["agents"],
-    queryFn: fetchAgents,
+    mutate: refetch,
+  } = useMutation<Agent[], Error>({
+    mutationFn: fetchAgents,
   });
-  const [addedAgents, setAddedAgents] = useState<Agent[]>([]);
-  const agents = fetchedAgents
-    ? [...fetchedAgents, ...addedAgents]
-    : addedAgents;
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+  const onDelete = () => {
+    refetch();
+  };
+
+  const agents = fetchedAgents || [];
 
   return (
     <Tabs className="px-4 flex flex-col h-full py-8" defaultValue="all">
@@ -62,7 +66,7 @@ export function AgentsPage() {
             <AddAgentSheet
               onAdd={async (agent) => {
                 await addAgent(agent);
-                setAddedAgents((prev) => [...prev, agent]);
+                refetch();
               }}
             />
           </Sheet>
@@ -80,7 +84,12 @@ export function AgentsPage() {
         </CardHeader>
         <CardContent className="h-full overflow-y-auto">
           <TabsContent value={"all"} asChild>
-            <AgentsTable agents={agents} isLoading={isLoading} error={error} />
+            <AgentsTable
+              agents={agents}
+              isLoading={isLoading}
+              error={error}
+              onDelete={onDelete}
+            />
           </TabsContent>
           <TabsContent value={agentStatus.online} asChild>
             <AgentsTable
@@ -89,6 +98,7 @@ export function AgentsPage() {
               )}
               isLoading={isLoading}
               error={error}
+              onDelete={onDelete}
             />
           </TabsContent>
           <TabsContent value={agentStatus.offline} asChild>
@@ -98,6 +108,7 @@ export function AgentsPage() {
               )}
               isLoading={isLoading}
               error={error}
+              onDelete={onDelete}
             />
           </TabsContent>
         </CardContent>
