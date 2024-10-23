@@ -58,7 +58,7 @@ export function MessagesList() {
                 {
                   <span className="font-light text-sm">
                     {run?.timestamp
-                      ? new Date(run?.timestamp).toISOString()
+                      ? new Date(Number(run.timestamp)).toLocaleString()
                       : "Unknown"}
                   </span>
                 }

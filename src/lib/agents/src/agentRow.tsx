@@ -11,9 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Agent } from "../model";
+import { Agent, agentStatus } from "../model";
 import { createNewRuns, deleteAgent } from "../actions";
 import { Link, useNavigate } from "react-router-dom";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import { InvokeAgentSheet } from "./invokeAgentSheet";
 
 export function AgentRow({
   agent,
@@ -42,37 +44,35 @@ export function AgentRow({
               <span className="sr-only">Toggle menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <Link to={`/agents/${agent.id}/runs`}>
-              <DropdownMenuItem>View runs</DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem
-              onClick={async () => {
-                const run = await createNewRuns(agent.id, [
-                  {
-                    targetUrl:
-                      "https://careers.thalesgroup.com/global/en/apply?jobSeqNo=TGPTGWGLOBALR0235440EXTERNALENGLOBAL&source=WORKDAY&utm_source=linkedin&utm_medium=phenom-feeds&step=1",
-                  },
-                  {
-                    targetUrl:
-                      "https://www.google.com/search?q=thales+group+careers",
-                  },
-                ]);
+          <Sheet>
+            <DropdownMenuContent align="end">
+              {agent.status === agentStatus.online && (
+                <>
+                  <Link to={`/agents/${agent.id}/runs`}>
+                    <DropdownMenuItem>View runs</DropdownMenuItem>
+                  </Link>
+                  <SheetTrigger asChild>
+                    <DropdownMenuItem>Invoke</DropdownMenuItem>
+                  </SheetTrigger>
+                </>
+              )}
 
-                navigate(`/agents/${agent.id}/runs/${run.id}/messages`);
+              <DropdownMenuItem
+                onClick={async () => {
+                  await deleteAgent(agent.id);
+                  onDelete(agent.id);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+            <InvokeAgentSheet
+              onInvoke={async (parameters) => {
+                await createNewRuns(agent.id, parameters);
+                navigate(`/agents/${agent.id}/runs`);
               }}
-            >
-              Invoke
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={async () => {
-                await deleteAgent(agent.id);
-                onDelete(agent.id);
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+            ></InvokeAgentSheet>
+          </Sheet>
         </DropdownMenu>
       </TableCell>
     </TableRow>

@@ -1,6 +1,6 @@
 import { toAgent } from "../mappers/toAgent";
 import { toDbAgent } from "../mappers/toDbAgent";
-import { Agent, DbAgent } from "../model";
+import { Agent, AgentInvokeParameters, DbAgent } from "../model";
 
 export const fetchAgents = async (): Promise<Agent[]> => {
   const agentsInLocalStorage = localStorage.getItem("agents");
@@ -53,7 +53,7 @@ export const addAgent = async (agent: Agent) => {
 
 export async function createNewRuns(
   agentId: string,
-  parameters: Record<string, unknown>[]
+  parameters: AgentInvokeParameters
 ) {
   const agents = localStorage.getItem("agents");
   if (!agents) {

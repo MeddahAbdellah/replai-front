@@ -38,3 +38,5 @@ export interface Agent {
   url: string;
   createdAt: Date;
 }
+
+export type AgentInvokeParameters = Record<string, unknown>[];

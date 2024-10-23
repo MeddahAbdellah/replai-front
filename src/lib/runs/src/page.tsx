@@ -153,7 +153,7 @@ export function RunsPage() {
                       <Badge variant="outline">{run.taskStatus}</Badge>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {new Date(run.timestamp).toLocaleString()}
+                      {new Date(Number(run.timestamp)).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button asChild variant="outline" size="sm">
