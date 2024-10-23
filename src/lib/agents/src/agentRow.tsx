@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Agent } from "../model";
-import { createNewRun, deleteAgent } from "../actions";
+import { createNewRuns, deleteAgent } from "../actions";
 import { Link, useNavigate } from "react-router-dom";
 
 export function AgentRow({
@@ -48,10 +48,16 @@ export function AgentRow({
             </Link>
             <DropdownMenuItem
               onClick={async () => {
-                const run = await createNewRun(agent.id, {
-                  targetUrl:
-                    "https://careers.thalesgroup.com/global/en/apply?jobSeqNo=TGPTGWGLOBALR0235440EXTERNALENGLOBAL&source=WORKDAY&utm_source=linkedin&utm_medium=phenom-feeds&step=1",
-                });
+                const run = await createNewRuns(agent.id, [
+                  {
+                    targetUrl:
+                      "https://careers.thalesgroup.com/global/en/apply?jobSeqNo=TGPTGWGLOBALR0235440EXTERNALENGLOBAL&source=WORKDAY&utm_source=linkedin&utm_medium=phenom-feeds&step=1",
+                  },
+                  {
+                    targetUrl:
+                      "https://www.google.com/search?q=thales+group+careers",
+                  },
+                ]);
 
                 navigate(`/agents/${agent.id}/runs/${run.id}/messages`);
               }}

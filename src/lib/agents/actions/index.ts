@@ -51,23 +51,23 @@ export const addAgent = async (agent: Agent) => {
   }
 };
 
-export function createNewRun(
+export async function createNewRuns(
   agentId: string,
-  parameters: Record<string, unknown>
+  parameters: Record<string, unknown>[]
 ) {
   const agents = localStorage.getItem("agents");
   if (!agents) {
     throw new Error("No agents found in localStorage");
   }
-  const agent: DbAgent = JSON.parse(agents)
-    .map(toAgent)
-    .find((agent: DbAgent) => agent.id === agentId);
+  const agent: DbAgent = (
+    await Promise.all(JSON.parse(agents).map(toAgent))
+  ).find((agent: DbAgent) => agent.id === agentId);
   if (!agent) {
     throw new Error("Agent not found");
   }
-  return fetch(`${agent.url}/runs`, {
+  return fetch(`${agent.url}/runs/batch`, {
     method: "POST",
-    body: JSON.stringify({ parameters, includeConfigMessages: true }),
+    body: JSON.stringify({ parameters, toolsOnly: false }),
     headers: {
       "Content-Type": "application/json",
     },
