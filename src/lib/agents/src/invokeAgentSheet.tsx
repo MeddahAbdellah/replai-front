@@ -13,6 +13,7 @@ import { useRef, useState } from "react";
 import { AgentInvokeParameters } from "../model";
 import ReactJson from "react-json-view";
 import Papa from "papaparse";
+import { X } from "lucide-react";
 
 export function InvokeAgentSheet(params: {
   onInvoke: (parameters: AgentInvokeParameters) => void;
@@ -23,6 +24,10 @@ export function InvokeAgentSheet(params: {
 
   const handleAdd = () => {
     setParameters([...parameters, {}]);
+  };
+
+  const handleRemove = (index: number) => {
+    setParameters(parameters.filter((_, i) => i !== index));
   };
 
   const handleUpdate = (index: number, newValue: Record<string, unknown>) => {
@@ -81,20 +86,28 @@ export function InvokeAgentSheet(params: {
           onChange={handleAddFromCsv}
         ></input>
         {parameters.map((param, index) => (
-          <ReactJson
-            key={index}
-            src={param}
-            name={false}
-            onAdd={(e) =>
-              handleUpdate(index, e.updated_src as Record<string, unknown>)
-            }
-            onDelete={(e) =>
-              handleUpdate(index, e.updated_src as Record<string, unknown>)
-            }
-            onEdit={(e) =>
-              handleUpdate(index, e.updated_src as Record<string, unknown>)
-            }
-          />
+          <div key={index} className="flex items-start justify-between">
+            <ReactJson
+              src={param}
+              name={false}
+              onAdd={(e) =>
+                handleUpdate(index, e.updated_src as Record<string, unknown>)
+              }
+              onDelete={(e) =>
+                handleUpdate(index, e.updated_src as Record<string, unknown>)
+              }
+              onEdit={(e) =>
+                handleUpdate(index, e.updated_src as Record<string, unknown>)
+              }
+            />
+            <Button
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={() => handleRemove(index)}
+            >
+              <X size="sm" />
+            </Button>
+          </div>
         ))}
       </div>
 
