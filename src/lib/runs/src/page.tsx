@@ -198,8 +198,8 @@ export function RunsPage() {
               {Array.from({
                 length: Math.min(data?.pagination.totalPages || 1, 3),
               }).map((_value, key) => (
-                <Link to={`?page=${key + 1}`}>
-                  <PaginationItem key={key}>
+                <Link key={key} to={`?page=${key + 1}`}>
+                  <PaginationItem>
                     <PaginationLink>{key + 1}</PaginationLink>
                   </PaginationItem>
                 </Link>

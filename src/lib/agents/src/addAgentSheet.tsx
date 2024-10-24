@@ -24,7 +24,6 @@ import {
   Agent,
   AgentProtocol,
   agentProtocol,
-  agentStatus,
   agentSource,
   AgentSource,
 } from "../model";
@@ -116,7 +115,6 @@ export function AddAgentSheet(params: { onAdd: (agent: Agent) => void }) {
               onAdd({
                 id: crypto.randomUUID(),
                 name,
-                status: agentStatus.offline,
                 protocol: protocol as AgentProtocol,
                 source,
                 url,

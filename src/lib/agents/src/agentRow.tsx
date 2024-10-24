@@ -11,11 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Agent, agentStatus } from "../model";
-import { createNewRuns, deleteAgent } from "../actions";
+import { Agent, agentProtocol, AgentStatus, agentStatus } from "../model";
+import { createNewRuns, deleteAgent, fetchAgent } from "../actions";
 import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { InvokeAgentSheet } from "./invokeAgentSheet";
+import { useQuery } from "@tanstack/react-query";
 
 export function AgentRow({
   agent,
@@ -25,12 +26,30 @@ export function AgentRow({
   onDelete: (id: string) => void;
 }) {
   const navigate = useNavigate();
+  const { data: status } = useQuery<AgentStatus, Error>({
+    queryKey: ["agent-status", agent.id],
+    queryFn: async () => {
+      const dbAgent = await fetchAgent(agent.id);
+      if (!dbAgent) {
+        return agentStatus.offline;
+      }
+      if (dbAgent.protocol === agentProtocol.http) {
+        const response = await fetch(`${dbAgent.url}/health-check`).catch(
+          () => ({
+            ok: false,
+          })
+        );
+        return response.ok ? agentStatus.online : agentStatus.offline;
+      }
+      return agentStatus.offline;
+    },
+  });
   return (
     <TableRow key={agent.id}>
       <TableCell className="hidden sm:table-cell">{agent.protocol}</TableCell>
       <TableCell className="font-medium">{agent.name}</TableCell>
       <TableCell>
-        <Badge variant="outline">{agent.status}</Badge>
+        <Badge variant="outline">{status}</Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">{agent.source}</TableCell>
       <TableCell className="hidden md:table-cell">
@@ -46,7 +65,7 @@ export function AgentRow({
           </DropdownMenuTrigger>
           <Sheet>
             <DropdownMenuContent align="end">
-              {agent.status === agentStatus.online && (
+              {status === agentStatus.online && (
                 <>
                   <Link to={`/agents/${agent.id}/runs`}>
                     <DropdownMenuItem>View runs</DropdownMenuItem>

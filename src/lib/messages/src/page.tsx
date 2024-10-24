@@ -47,12 +47,12 @@ export function MessagesList() {
               <p className="font-semibold text-sm">
                 Run Id: {<span className="font-light text-sm">{run?.id}</span>}
               </p>
-              <p className="font-semibold text-sm">
+              <div className="font-semibold text-sm">
                 Run status: {<Badge>{run?.status}</Badge>}
-              </p>
-              <p className="font-semibold text-sm">
+              </div>
+              <div className="font-semibold text-sm">
                 Task status: {<Badge>{run?.taskStatus}</Badge>}
-              </p>
+              </div>
               <p className="font-semibold text-sm">
                 Run created on:{" "}
                 {

@@ -13,9 +13,7 @@ import {
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { Agent, agentStatus } from "../model";
+import { Agent } from "../model";
 import { addAgent, fetchAgents } from "../actions";
 import { AddAgentSheet } from "./addAgentSheet";
 import { AgentsTable } from "./agentsTable";
@@ -40,13 +38,8 @@ export function AgentsPage() {
   const agents = fetchedAgents || [];
 
   return (
-    <Tabs className="px-4 flex flex-col h-full py-8" defaultValue="all">
+    <div className="px-4 flex flex-col h-full py-8" defaultValue="all">
       <div className="flex items-center mb-2">
-        <TabsList>
-          <TabsTrigger value={"all"}>All</TabsTrigger>
-          <TabsTrigger value={agentStatus.online}>Online</TabsTrigger>
-          <TabsTrigger value={agentStatus.offline}>Offline</TabsTrigger>
-        </TabsList>
         <div className="ml-auto flex items-center gap-2">
           <Button size="sm" variant="outline" className="h-8 gap-1">
             <File className="h-3.5 w-3.5" />
@@ -83,34 +76,12 @@ export function AgentsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="h-full overflow-y-auto">
-          <TabsContent value={"all"} asChild>
-            <AgentsTable
-              agents={agents}
-              isLoading={isLoading}
-              error={error}
-              onDelete={onDelete}
-            />
-          </TabsContent>
-          <TabsContent value={agentStatus.online} asChild>
-            <AgentsTable
-              agents={agents.filter(
-                (agent) => agent.status === agentStatus.online
-              )}
-              isLoading={isLoading}
-              error={error}
-              onDelete={onDelete}
-            />
-          </TabsContent>
-          <TabsContent value={agentStatus.offline} asChild>
-            <AgentsTable
-              agents={agents.filter(
-                (agent) => agent.status === agentStatus.offline
-              )}
-              isLoading={isLoading}
-              error={error}
-              onDelete={onDelete}
-            />
-          </TabsContent>
+          <AgentsTable
+            agents={agents}
+            isLoading={isLoading}
+            error={error}
+            onDelete={onDelete}
+          />
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
@@ -118,6 +89,6 @@ export function AgentsPage() {
           </div>
         </CardFooter>
       </Card>
-    </Tabs>
+    </div>
   );
 }

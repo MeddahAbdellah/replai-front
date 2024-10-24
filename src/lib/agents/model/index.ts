@@ -16,9 +16,6 @@ export type AgentStatus = (typeof agentStatus)[keyof typeof agentStatus];
 
 export const agentProtocol = {
   http: "http",
-  https: "https",
-  webSocket: "webSocket",
-  protobuff: "protobuff",
 } as const;
 
 export type AgentProtocol = (typeof agentProtocol)[keyof typeof agentProtocol];
@@ -32,7 +29,6 @@ export type AgentSource = (typeof agentSource)[keyof typeof agentSource];
 export interface Agent {
   id: string;
   name: string;
-  status: AgentStatus;
   protocol: AgentProtocol;
   source: AgentSource;
   url: string;
