@@ -42,7 +42,7 @@ export function MessagesList() {
     >
       <ResizablePanel defaultSize={70}>
         <ResizablePanelGroup className="flex flex-col" direction="vertical">
-          <ResizablePanel defaultSize={15}>
+          <ResizablePanel defaultSize={25}>
             <div className="flex flex-col gap-2 p-6">
               <p className="font-semibold text-sm">
                 Run Id: {<span className="font-light text-sm">{run?.id}</span>}
@@ -53,6 +53,10 @@ export function MessagesList() {
               <div className="font-semibold text-sm">
                 Task status: {<Badge>{run?.taskStatus}</Badge>}
               </div>
+              <p className="font-semibold text-sm">
+                Reason:{" "}
+                {<span className="font-light text-sm">{run?.reason}</span>}
+              </p>
               <p className="font-semibold text-sm">
                 Run created on:{" "}
                 {
@@ -66,7 +70,7 @@ export function MessagesList() {
             </div>
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel defaultSize={85}>
+          <ResizablePanel defaultSize={75}>
             <div className="h-full flex flex-col overflow-auto p-2">
               {messages?.map((message) => (
                 <Card key={message.id} className="mb-4">

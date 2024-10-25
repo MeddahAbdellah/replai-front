@@ -2,6 +2,7 @@ export interface DbRun {
   id: number;
   status: string;
   task_status: string;
+  reason: string;
   timestamp: string;
 }
 
@@ -40,5 +41,6 @@ export interface Run {
   id: number;
   status: RunStatus;
   taskStatus: string;
+  reason: string;
   timestamp: string;
 }

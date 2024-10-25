@@ -1,6 +1,8 @@
 export interface ToolCall {
+  id: string;
   name: string;
   args: { input: string | { [key: string]: string } };
+  type: "tool_call";
 }
 
 export type Content =

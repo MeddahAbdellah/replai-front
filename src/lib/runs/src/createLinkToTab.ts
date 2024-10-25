@@ -6,8 +6,9 @@ export const runsTabs = {
   running: "Running",
   failed: "Failed",
   done: "Done",
-  taskSuccess: "Task Successful",
-  taskFailed: "Task Failed",
+  taskSuccess: "Task successful",
+  taskFailed: "Task failed",
+  taskNeedHumanHelp: "Task needs human help",
 } as const;
 type RunsTabs = keyof typeof runsTabs;
 
@@ -52,6 +53,12 @@ export const createLinkToTab = (location: Location, tab: RunsTabs) => {
     taskFailed: () => {
       const searchParams = new URLSearchParams(location.search);
       searchParams.set("taskStatus", "failed");
+      searchParams.delete("status");
+      return `${location.pathname}?${searchParams.toString()}`;
+    },
+    taskNeedHumanHelp: () => {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set("taskStatus", "needHumanHelp");
       searchParams.delete("status");
       return `${location.pathname}?${searchParams.toString()}`;
     },

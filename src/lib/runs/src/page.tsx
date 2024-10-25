@@ -117,6 +117,8 @@ export function RunsPage() {
               <TableRow>
                 <TableHead className="text-left">Status</TableHead>
                 <TableHead className="text-left">Task result</TableHead>
+                <TableHead className="text-left">Reason</TableHead>
+                <TableHead className="text-left">Creation Date</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -131,6 +133,9 @@ export function RunsPage() {
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-8 w-8 rounded-full" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-8 w-8 rounded-full" />
@@ -151,6 +156,9 @@ export function RunsPage() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge variant="outline">{run.taskStatus}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell max-w-[300px]">
+                      {run.reason}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {new Date(Number(run.timestamp)).toLocaleString()}
