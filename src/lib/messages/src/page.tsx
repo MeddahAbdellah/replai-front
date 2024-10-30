@@ -139,15 +139,17 @@ export function MessagesList() {
                   <Badge variant="outline" className="mr-auto">
                     {message.type}
                   </Badge>
-                  <Button variant="ghost" size="sm" className="w-9 p-0">
-                    <X
-                      className="h-4 w-4"
-                      onClick={() => {
-                        setMessagesToReplay(
-                          messagesToReplay.filter((_, i) => i !== index)
-                        );
-                      }}
-                    />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-9 p-0"
+                    onClick={() => {
+                      setMessagesToReplay(
+                        messagesToReplay.filter((_, i) => i !== index)
+                      );
+                    }}
+                  >
+                    <X className="h-4 w-4" />
                     <span className="sr-only">Toggle</span>
                   </Button>
                 </CardHeader>
