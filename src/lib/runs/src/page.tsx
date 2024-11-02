@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GetRunsResponse } from "../model";
 import { fetchRuns } from "../actions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, File } from "lucide-react";
+import { Eye, File, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { createLinkToTab, runsTabs } from "./createLinkToTab";
 import {
@@ -38,6 +38,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import { InvokeAgentSheet } from "@/lib/agents/src/invokeAgentSheet";
+import { createNewRuns } from "@/lib/agents";
 
 export function RunsPage() {
   const { agentId } = useParams<{ agentId: string }>();
@@ -73,6 +76,7 @@ export function RunsPage() {
         order as "asc" | "desc"
       );
     },
+    refetchInterval: 5000,
     enabled: !!agentId,
   });
 
@@ -93,6 +97,22 @@ export function RunsPage() {
           })}
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button size="sm" className="h-8 gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Invoke Agent
+                </span>
+              </Button>
+            </SheetTrigger>
+            <InvokeAgentSheet
+              onInvoke={async (parameters) => {
+                if (!agentId) return;
+                await createNewRuns(agentId, parameters);
+              }}
+            />
+          </Sheet>
           <Button size="sm" variant="outline" className="h-8 gap-1">
             <File className="h-3.5 w-3.5" />
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">

@@ -6,7 +6,7 @@ import { fetchMessages } from "../actions";
 import { Message } from "../model";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { fetchRun, runStatus, Run } from "@/lib/runs";
@@ -34,6 +34,15 @@ export function MessagesList() {
     enabled: run?.status !== runStatus.done && run?.status !== runStatus.failed,
   });
   const [messagesToReplay, setMessagesToReplay] = useState<Message[]>([]);
+  const messagesListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // scroll to bottom of messages list
+    messagesListRef.current?.scrollTo({
+      top: messagesListRef.current?.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   return (
     <ResizablePanelGroup
@@ -71,7 +80,10 @@ export function MessagesList() {
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>
-            <div className="h-full flex flex-col overflow-auto p-2">
+            <div
+              ref={messagesListRef}
+              className="h-full flex flex-col overflow-auto p-2"
+            >
               {messages?.map((message) => (
                 <Card key={message.id} className="mb-4">
                   <CardHeader className="grid grid-cols-[1fr_auto_auto_auto] space-y-0 gap-2">
